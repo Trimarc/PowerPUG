@@ -201,6 +201,13 @@ Invoke-Command -ComputerName $($_.Name) -ScriptBlock { auditpol /set /subcategor
         }
     }
     Read-Host 'Press Enter to Continue'
+    
+    # Check and stop code if all admins are in PUG
+    $NonPugMembers = $ADAdmins | Where-Object { -not $_.PugMember }
+    if (-not $NonPugMembers) {
+        Write-PPHost -Type Success -Message "All AD Admins are already members of Protected Users Group. No further action needed."
+        return
+    }
 
     Write-PPHost -Type Info -Message "The following AD Admins are not members of the Protected Users Group:"
     $ADAdmins | Select-Object $SelectProperties | Sort-Object -Unique $SortProperties | ForEach-Object {
